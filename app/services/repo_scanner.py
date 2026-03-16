@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-SUPPORTED_EXTENSIONS = {".py", ".md", ".json", ".yaml", ".yml"}
+SUPPORTED_EXTENSIONS = {".py", ".md", ".yaml", ".yml",".txt"}
 IGNORED_DIRS = {
     ".git",
     "venv",
@@ -33,8 +33,8 @@ def scan_repository(repo_path: str) -> List[str]:
 
         if file_path.suffix.lower() in SUPPORTED_EXTENSIONS:
             relative_path = file_path.relative_to(root).as_posix()
-            print("ADDING:", relative_path)
             indexed_files.append(relative_path)
 
-    print("FINAL INDEXED FILES:", indexed_files)
+
+
     return sorted(indexed_files)

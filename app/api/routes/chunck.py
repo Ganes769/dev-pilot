@@ -10,7 +10,6 @@ router=APIRouter(prefix="/repo",tags=["chuncks"])
 def chunck_repository(payload:RepoChunckRequest):
     try:
         repo_name=Path(payload.repo_path).name
-        print("repo path",repo_name)
         files=scan_repository(payload.repo_path)
         previews=[]
         total_chuncks=0
