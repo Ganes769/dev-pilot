@@ -35,7 +35,7 @@ def chunck_repository(payload:RepoChunckRequest):
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except NotADirectoryError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str (exc))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
