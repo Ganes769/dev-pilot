@@ -70,4 +70,4 @@ def semantic_search(payload: SearchRequest):
         )
 
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}")
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") 
