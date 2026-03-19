@@ -9,7 +9,7 @@ from app.services.llm_service import generate_repo_answer
 
 router = APIRouter(prefix="", tags=["ask"])
 
-SIMILARITY_THRESHOLD = 0.35
+SIMILARITY_THRESHOLD = 0.4
 MAX_LIMIT = 5
 
 
@@ -34,19 +34,18 @@ class AskResponse(BaseModel):
 def ask_repo(payload: AskRequest):
     try:
         question = payload.question.strip()
-        print(question)
 
-        # Step 1: embed the question
+        # Step 1: embed the user question
         query_vector = embed_text(question)
 
-        # Step 2: search relevant chunks in Qdrant
+        # Step 2: retrieve relevant chunks from Qdrant
         matches = search_chunks(query_vector=query_vector, limit=payload.limit)
 
-        # Step 3: build context for the LLM
         sources: List[AskSource] = []
-        context_parts = []
+        context_parts: List[str] = []
         seen = set()
 
+        # Step 3: use stored payload text directly
         for match in matches:
             data = match.payload or {}
             score = float(match.score)
@@ -63,6 +62,9 @@ def ask_repo(payload: AskRequest):
                 continue
             seen.add(key)
 
+            if not text.strip():
+                continue
+
             sources.append(
                 AskSource(
                     file_path=file_path,
@@ -74,10 +76,10 @@ def ask_repo(payload: AskRequest):
             context_parts.append(
                 f"File: {file_path}\n"
                 f"Chunk Index: {chunk_index}\n"
-                f"Code:\n{text}\n"
+                f"Code:\n{text}"
             )
 
-        # Step 4: if nothing useful was found
+        # Step 4: fallback if retrieval found nothing useful
         if not context_parts:
             return AskResponse(
                 question=question,
@@ -85,11 +87,13 @@ def ask_repo(payload: AskRequest):
                 sources=[],
             )
 
-        # Step 5: send retrieved code to the LLM
-        context = "\n\n".join(context_parts)
+        # Step 5: build one context string from stored chunk text
+        context = "\n\n---\n\n".join(context_parts)
+
+        # Step 6: send that context to the LLM
         answer = generate_repo_answer(question=question, context=context)
 
-        # Step 6: return answer + sources
+        # Step 7: return final answer + sources
         return AskResponse(
             question=question,
             answer=answer,
