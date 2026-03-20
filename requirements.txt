@@ -6,3 +6,6 @@ sentence-transformers
 ollama
 python-dotenv
 tqdm
+typer
+requests
+rich
