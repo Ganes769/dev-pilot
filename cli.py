@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 import requests
 import typer
@@ -77,6 +77,11 @@ def ask(
         help="Question about the indexed repo (all words after 'ask' are joined).",
     ),
     limit: int = 3,
+    extra: Optional[str] = typer.Option(
+        None,
+        "--extra",
+        help="Extra context for this question only (merged with server env/file context).",
+    ),
 ):
     """
     Ask DevPilot a question about the indexed repository.
@@ -91,6 +96,8 @@ def ask(
         raise typer.Exit(code=1)
 
     payload = {"question": q, "limit": limit}
+    if extra:
+        payload["extra_context"] = extra
 
     try:
         with console.status(

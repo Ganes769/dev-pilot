@@ -45,6 +45,34 @@ python3 -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 Check: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health) → `{"status":"ok"}`.
 
+Environment variables are loaded from a **`.env`** file in the project root (if present) thanks to `load_dotenv()` in `app/main.py`.
+
+## Extra context (greetings, identity, “how are you”, etc.)
+
+By default, `/ask` is **code-grounded**: if nothing relevant is retrieved from the vector DB, you get a short “no evidence” message. To let the model answer **meta questions** (who you are, how you are, product blurb) **without** repo hits, add **optional context** in any of these ways:
+
+1. **`.env`** (recommended for local dev)
+
+   ```env
+   DEVPILOT_EXTRA_CONTEXT=You are DevPilot. For greetings like "how are you", reply briefly that you're ready to help explore the indexed codebase. You were built with FastAPI, Qdrant, and Ollama.
+   ```
+
+2. **File** (easier for long text). If this path exists, it **replaces** the env string (not merged):
+
+   ```env
+   DEVPILOT_EXTRA_CONTEXT_FILE=/absolute/path/to/context.txt
+   ```
+
+3. **Per request** — JSON body field `extra_context` on `POST /ask` (appended after the server-loaded text).
+
+4. **CLI** — one-off text:
+
+   ```bash
+   python3 -m cli ask how are you --extra "Say you're DevPilot and doing well; offer to help with the repo."
+   ```
+
+When **any** of the above is set, the model still uses **retrieved code** for repo questions; the extra block covers identity and small talk. Implementation: `app/services/extra_context.py`, `app/services/llm_service.py`, `app/api/routes/ask.py`.
+
 ## 5. Initialize and use the CLI
 
 The CLI is **`cli.py`**. Run it as a module from the repo root so imports resolve if you extend the package later.

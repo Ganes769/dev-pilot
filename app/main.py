@@ -1,4 +1,8 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
+
+load_dotenv()
+
 from app.api.routes.repo import router as repos_router
 from app.api.routes.chunck import router as chunks_router
 from app.api.routes.vector import  router as vector_router

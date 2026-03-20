@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 from app.services.embedding_service import embed_text
+from app.services.extra_context import load_extra_context
+from app.services.llm_service import generate_answer
 from app.services.vector_store import search_chunks
-from app.services.llm_service import generate_repo_answer
 
 
 router = APIRouter(prefix="", tags=["ask"])
@@ -16,6 +17,10 @@ MAX_LIMIT = 5
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1)
     limit: int = Field(default=3, ge=1, le=MAX_LIMIT)
+    extra_context: Optional[str] = Field(
+        default=None,
+        description="Optional text appended to server-configured context for this request only.",
+    )
 
 
 class AskSource(BaseModel):
@@ -79,8 +84,25 @@ def ask_repo(payload: AskRequest):
                 f"Code:\n{text}"
             )
 
-        # Step 4: fallback if retrieval found nothing useful
+        server_extra = load_extra_context()
+        req_extra = (payload.extra_context or "").strip()
+        extra_context = "\n\n".join(
+            part for part in (server_extra, req_extra) if part
+        )
+
+        # Step 4: no retrieval — still answer if optional extra context is configured
         if not context_parts:
+            if extra_context:
+                answer = generate_answer(
+                    question=question,
+                    code_context=None,
+                    extra_context=extra_context,
+                )
+                return AskResponse(
+                    question=question,
+                    answer=answer,
+                    sources=[],
+                )
             return AskResponse(
                 question=question,
                 answer="I could not find enough evidence in the retrieved code.",
@@ -91,7 +113,11 @@ def ask_repo(payload: AskRequest):
         context = "\n\n---\n\n".join(context_parts)
 
         # Step 6: send that context to the LLM
-        answer = generate_repo_answer(question=question, context=context)
+        answer = generate_answer(
+            question=question,
+            code_context=context,
+            extra_context=extra_context,
+        )
 
         # Step 7: return final answer + sources
         return AskResponse(
