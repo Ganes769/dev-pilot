@@ -7,7 +7,7 @@ from app.services.repo_scanner import scan_repository
 from app.services.file_reader import read_file_content
 from app.services.chuncker import chunk_text
 from app.services.embedding_service import embed_texts
-from app.services.vector_store import create_collection, upsert_chunks, COLLECTION_NAME
+from app.services.vector_store import recreate_collection, upsert_chunks, COLLECTION_NAME
 
 
 router = APIRouter(prefix="/repos", tags=["embed"])
@@ -32,8 +32,6 @@ def embed_repository(payload: RepoEmbedRequest):
     try:
         repo_name = Path(payload.repo_path).name
         files = scan_repository(payload.repo_path)
-
-        create_collection()
 
         chunk_records = []
 
@@ -74,6 +72,8 @@ def embed_repository(payload: RepoEmbedRequest):
                     },
                 }
             )
+
+        recreate_collection()
 
         if points:
             upsert_chunks(points)

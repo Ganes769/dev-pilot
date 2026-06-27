@@ -8,13 +8,12 @@ from app.services.vector_store import search_chunks
 
 router = APIRouter(prefix="", tags=["search"])
 
-SIMILARITY_THRESHOLD = 0.4
-MAX_LIMIT = 10
+MAX_LIMIT = 15
 
 
 class SearchRequest(BaseModel):
     query: str = Field(..., min_length=1)
-    limit: int = Field(default=5, ge=1, le=MAX_LIMIT)
+    limit: int = Field(default=8, ge=1, le=MAX_LIMIT)
 
 
 class SearchResult(BaseModel):
@@ -46,9 +45,6 @@ def semantic_search(payload: SearchRequest):
             file_path = data.get("file_path", "")
             chunk_index = data.get("chunk_index", -1)
             text = data.get("text", "")
-
-            if score < SIMILARITY_THRESHOLD:
-                continue
 
             unique_key = (file_path, chunk_index)
             if unique_key in seen:

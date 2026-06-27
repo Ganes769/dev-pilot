@@ -10,13 +10,12 @@ from app.services.vector_store import search_chunks
 
 router = APIRouter(prefix="", tags=["ask"])
 
-SIMILARITY_THRESHOLD = 0.4
-MAX_LIMIT = 5
+MAX_LIMIT = 15
 
 
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1)
-    limit: int = Field(default=3, ge=1, le=MAX_LIMIT)
+    limit: int = Field(default=8, ge=1, le=MAX_LIMIT)
     extra_context: Optional[str] = Field(
         default=None,
         description="Optional text appended to server-configured context for this request only.",
@@ -54,9 +53,6 @@ def ask_repo(payload: AskRequest):
         for match in matches:
             data = match.payload or {}
             score = float(match.score)
-
-            if score < SIMILARITY_THRESHOLD:
-                continue
 
             file_path = data.get("file_path", "")
             chunk_index = data.get("chunk_index", -1)

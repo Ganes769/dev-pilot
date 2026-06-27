@@ -19,6 +19,12 @@ def create_collection() -> None:
     )
 
 
+def recreate_collection() -> None:
+    if qdrant_client.collection_exists(COLLECTION_NAME):
+        qdrant_client.delete_collection(collection_name=COLLECTION_NAME)
+    create_collection()
+
+
 def upsert_chunks(points: List[Dict[str, Any]]) -> None:
     qdrant_points = [
         PointStruct(
