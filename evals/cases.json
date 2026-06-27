@@ -1,0 +1,23 @@
+[
+  {
+    "name": "find ask api",
+    "question": "where is the ask API code?",
+    "expected_files": ["app/api/routes/ask.py"],
+    "expected_keywords": ["ask", "question", "sources"],
+    "min_sources": 1
+  },
+  {
+    "name": "find embed api",
+    "question": "where is repository embedding handled?",
+    "expected_files": ["app/api/routes/embed.py"],
+    "expected_keywords": ["embed", "chunks", "vectors"],
+    "min_sources": 1
+  },
+  {
+    "name": "find vector store",
+    "question": "where are chunks stored in qdrant?",
+    "expected_files": ["app/services/vector_store.py"],
+    "expected_keywords": ["qdrant", "collection", "repo_chunks"],
+    "min_sources": 1
+  }
+]

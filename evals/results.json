@@ -1,0 +1,221 @@
+{
+  "passed": 0,
+  "total": 3,
+  "pass_rate": 0.0,
+  "results": [
+    {
+      "name": "find ask api",
+      "question": "where is the ask API code?",
+      "passed": false,
+      "bad_answer": false,
+      "source_count": 10,
+      "expected_files": [
+        "app/api/routes/ask.py"
+      ],
+      "found_files": [],
+      "expected_keywords": [
+        "ask",
+        "question",
+        "sources"
+      ],
+      "found_keywords": [
+        "ask"
+      ],
+      "answer": "Based on the code context, the `ask` API code is located in `release_tracker/src/ai.py`. Specifically, the following functions handle the interaction with different LLM providers:\n\n*   `_call_llm`: This is the central function that orchestrates the call to the chosen LLM provider (`ollama`, `gemini`, or `mock`).\n*   `_ollama_plan`: This function handles the call to the Ollama LLM using the `httpx` library.\n*   `_gemini_plan`: This function handles the call to the Google Gemini LLM using the `google.genai` library.\n\nThese functions are used by the `generate_plan` function, which determines the appropriate LLM provider based on the `AI_PROVIDER` environment variable.",
+      "sources": [
+        {
+          "file_path": "release_tracker/src/ai.py",
+          "chunk_index": 9,
+          "score": 0.2841
+        },
+        {
+          "file_path": "release_tracker/src/ai.py",
+          "chunk_index": 11,
+          "score": 0.2725
+        },
+        {
+          "file_path": "release_tracker/src/main.py",
+          "chunk_index": 0,
+          "score": 0.2396
+        },
+        {
+          "file_path": "release_tracker/src/routers/task.py",
+          "chunk_index": 0,
+          "score": 0.237
+        },
+        {
+          "file_path": "release_tracker/src/dependency.py",
+          "chunk_index": 1,
+          "score": 0.2275
+        },
+        {
+          "file_path": "release_tracker/src/ai.py",
+          "chunk_index": 7,
+          "score": 0.2199
+        },
+        {
+          "file_path": "release_tracker/src/ai.py",
+          "chunk_index": 10,
+          "score": 0.2121
+        },
+        {
+          "file_path": "release_tracker/src/ai.py",
+          "chunk_index": 0,
+          "score": 0.209
+        },
+        {
+          "file_path": "release_tracker/src/dependency.py",
+          "chunk_index": 0,
+          "score": 0.2075
+        },
+        {
+          "file_path": "README.md",
+          "chunk_index": 0,
+          "score": 0.2007
+        }
+      ]
+    },
+    {
+      "name": "find embed api",
+      "question": "where is repository embedding handled?",
+      "passed": false,
+      "bad_answer": true,
+      "source_count": 10,
+      "expected_files": [
+        "app/api/routes/embed.py"
+      ],
+      "found_files": [],
+      "expected_keywords": [
+        "embed",
+        "chunks",
+        "vectors"
+      ],
+      "found_keywords": [
+        "embed"
+      ],
+      "answer": "I could not find enough evidence in the retrieved code. Repository embedding is not explicitly mentioned in the provided code.",
+      "sources": [
+        {
+          "file_path": "frontend/README.md",
+          "chunk_index": 0,
+          "score": 0.2376
+        },
+        {
+          "file_path": "release_tracker/src/undo.py",
+          "chunk_index": 0,
+          "score": 0.1724
+        },
+        {
+          "file_path": "release_tracker/compose.yaml",
+          "chunk_index": 0,
+          "score": 0.1478
+        },
+        {
+          "file_path": "release_tracker/src/routers/projects.py",
+          "chunk_index": 4,
+          "score": 0.1436
+        },
+        {
+          "file_path": "README.md",
+          "chunk_index": 0,
+          "score": 0.1177
+        },
+        {
+          "file_path": "frontend/README.md",
+          "chunk_index": 2,
+          "score": 0.1137
+        },
+        {
+          "file_path": "release_tracker/src/dependency.py",
+          "chunk_index": 0,
+          "score": 0.1048
+        },
+        {
+          "file_path": "release_tracker/src/crud.py",
+          "chunk_index": 15,
+          "score": 0.0956
+        },
+        {
+          "file_path": "release_tracker/src/dependency.py",
+          "chunk_index": 1,
+          "score": 0.0906
+        },
+        {
+          "file_path": "release_tracker/src/crud.py",
+          "chunk_index": 16,
+          "score": 0.0901
+        }
+      ]
+    },
+    {
+      "name": "find vector store",
+      "question": "where are chunks stored in qdrant?",
+      "passed": false,
+      "bad_answer": true,
+      "source_count": 10,
+      "expected_files": [
+        "app/services/vector_store.py"
+      ],
+      "found_files": [],
+      "expected_keywords": [
+        "qdrant",
+        "collection",
+        "repo_chunks"
+      ],
+      "found_keywords": [],
+      "answer": "I could not find enough evidence in the retrieved code. The code describes undo functionality for tasks and subtasks, but it does not specify where chunks are stored. The code utilizes a PostgreSQL database to store task and dependency information, but it doesn't detail the storage mechanism for \"chunks\" themselves.",
+      "sources": [
+        {
+          "file_path": "release_tracker/src/database.py",
+          "chunk_index": 0,
+          "score": 0.2226
+        },
+        {
+          "file_path": "release_tracker/compose.yaml",
+          "chunk_index": 0,
+          "score": 0.185
+        },
+        {
+          "file_path": "release_tracker/src/undo.py",
+          "chunk_index": 2,
+          "score": 0.1756
+        },
+        {
+          "file_path": "release_tracker/src/routers/task.py",
+          "chunk_index": 2,
+          "score": 0.1589
+        },
+        {
+          "file_path": "release_tracker/src/crud.py",
+          "chunk_index": 12,
+          "score": 0.1563
+        },
+        {
+          "file_path": "release_tracker/src/undo.py",
+          "chunk_index": 0,
+          "score": 0.147
+        },
+        {
+          "file_path": "release_tracker/src/crud.py",
+          "chunk_index": 11,
+          "score": 0.1369
+        },
+        {
+          "file_path": "release_tracker/src/routers/projects.py",
+          "chunk_index": 4,
+          "score": 0.1307
+        },
+        {
+          "file_path": "release_tracker/src/config.py",
+          "chunk_index": 0,
+          "score": 0.1294
+        },
+        {
+          "file_path": "release_tracker/src/crud.py",
+          "chunk_index": 16,
+          "score": 0.1197
+        }
+      ]
+    }
+  ]
+}
