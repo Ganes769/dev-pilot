@@ -25,6 +25,9 @@ def recreate_collection() -> None:
     create_collection()
 
 
+UPSERT_BATCH_SIZE = 500
+
+
 def upsert_chunks(points: List[Dict[str, Any]]) -> None:
     qdrant_points = [
         PointStruct(
@@ -35,10 +38,12 @@ def upsert_chunks(points: List[Dict[str, Any]]) -> None:
         for point in points
     ]
 
-    qdrant_client.upsert(
-        collection_name=COLLECTION_NAME,
-        points=qdrant_points,
-    )
+    for i in range(0, len(qdrant_points), UPSERT_BATCH_SIZE):
+        batch = qdrant_points[i : i + UPSERT_BATCH_SIZE]
+        qdrant_client.upsert(
+            collection_name=COLLECTION_NAME,
+            points=batch,
+        )
 
 
 def search_chunks(query_vector: List[float], limit: int = 5):

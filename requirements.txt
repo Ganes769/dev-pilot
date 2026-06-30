@@ -9,3 +9,6 @@ tqdm
 typer
 requests
 rich
+pytest
+braintrust
+autoevals

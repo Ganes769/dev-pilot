@@ -13,10 +13,13 @@ from app.services.vector_store import recreate_collection, upsert_chunks, COLLEC
 router = APIRouter(prefix="/repos", tags=["embed"])
 
 
+EMBED_BATCH_SIZE = 128
+
+
 class RepoEmbedRequest(BaseModel):
     repo_path: str
-    chunk_size: int = 1000
-    overlap: int = 100
+    chunk_size: int = 2000
+    overlap: int = 200
 
 
 class RepoEmbedResponse(BaseModel):
@@ -56,8 +59,12 @@ def embed_repository(payload: RepoEmbedRequest):
                 )
                 point_id += 1
 
+        # Embed in batches to avoid memory spikes on large repos
         texts = [record["text"] for record in chunk_records]
-        vectors = embed_texts(texts)
+        vectors: List = []
+        for i in range(0, len(texts), EMBED_BATCH_SIZE):
+            batch_vectors = embed_texts(texts[i : i + EMBED_BATCH_SIZE])
+            vectors.extend(batch_vectors)
 
         points = []
         for record, vector in zip(chunk_records, vectors):
