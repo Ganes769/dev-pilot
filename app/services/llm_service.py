@@ -2,7 +2,9 @@ from typing import Optional
 
 from ollama import chat
 
-MODEL_NAME = "gemma3"
+from app.config import OLLAMA_MODEL
+
+MODEL_NAME = OLLAMA_MODEL
 
 
 def _extra_block(extra_context: str) -> str:

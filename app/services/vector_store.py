@@ -1,9 +1,19 @@
-from typing import List, Dict, Any
-from qdrant_client.models import Distance, VectorParams, PointStruct
+from typing import Any, Dict, List, Optional, Tuple
+
+from qdrant_client.models import (
+    Distance,
+    FieldCondition,
+    Filter,
+    MatchValue,
+    PointStruct,
+    VectorParams,
+)
+
+from app.config import EMBEDDING_VECTOR_SIZE, SCORE_THRESHOLD
 from app.db.qdrant_client import qdrant_client
 
 COLLECTION_NAME = "repo_chunks"
-VECTOR_SIZE = 384
+VECTOR_SIZE = EMBEDDING_VECTOR_SIZE
 
 
 def create_collection() -> None:
@@ -46,11 +56,50 @@ def upsert_chunks(points: List[Dict[str, Any]]) -> None:
         )
 
 
-def search_chunks(query_vector: List[float], limit: int = 5):
+def search_chunks(
+    query_vector: List[float],
+    limit: int = 5,
+    score_threshold: Optional[float] = SCORE_THRESHOLD,
+):
     response = qdrant_client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_vector,
         limit=limit,
         with_payload=True,
+        score_threshold=score_threshold,
     )
     return response.points
+
+
+def fetch_neighbor_chunks(
+    file_path: str,
+    chunk_indices: List[int],
+) -> Dict[Tuple[str, int], str]:
+    """Fetch chunks of a file by index (used to pull neighbors of matched chunks).
+
+    Returns a mapping of (file_path, chunk_index) -> chunk text.
+    """
+    wanted = sorted(set(index for index in chunk_indices if index >= 0))
+    if not wanted:
+        return {}
+
+    found: Dict[Tuple[str, int], str] = {}
+    for index in wanted:
+        points, _ = qdrant_client.scroll(
+            collection_name=COLLECTION_NAME,
+            scroll_filter=Filter(
+                must=[
+                    FieldCondition(key="file_path", match=MatchValue(value=file_path)),
+                    FieldCondition(key="chunk_index", match=MatchValue(value=index)),
+                ]
+            ),
+            limit=1,
+            with_payload=True,
+        )
+        for point in points:
+            payload = point.payload or {}
+            text = payload.get("text", "")
+            if text.strip():
+                found[(file_path, index)] = text
+
+    return found

@@ -5,7 +5,7 @@ from typing import List
 
 from app.services.repo_scanner import scan_repository
 from app.services.file_reader import read_file_content
-from app.services.chuncker import chunk_text
+from app.services.chuncker import chunk_file
 from app.services.embedding_service import embed_texts
 from app.services.vector_store import recreate_collection, upsert_chunks, COLLECTION_NAME
 
@@ -42,7 +42,8 @@ def embed_repository(payload: RepoEmbedRequest):
 
         for relative_file_path in files:
             content = read_file_content(payload.repo_path, relative_file_path)
-            chunks = chunk_text(
+            chunks = chunk_file(
+                file_path=relative_file_path,
                 text=content,
                 chunk_size=payload.chunk_size,
                 overlap=payload.overlap,
@@ -59,8 +60,13 @@ def embed_repository(payload: RepoEmbedRequest):
                 )
                 point_id += 1
 
-        # Embed in batches to avoid memory spikes on large repos
-        texts = [record["text"] for record in chunk_records]
+        # Embed in batches to avoid memory spikes on large repos.
+        # The file path is prepended to the embedded text (not the stored payload)
+        # so questions that mention file/module names retrieve better.
+        texts = [
+            f"# file: {record['file_path']}\n{record['text']}"
+            for record in chunk_records
+        ]
         vectors: List = []
         for i in range(0, len(texts), EMBED_BATCH_SIZE):
             batch_vectors = embed_texts(texts[i : i + EMBED_BATCH_SIZE])

@@ -17,6 +17,6 @@ class RepoChunckResponse(BaseModel):
     chunck_preview:List[ChunckPreview]
 class RepoChunckRequest(BaseModel):
     repo_path:str
-    chunck_size:int=1000
-    overlap:int=1000
+    chunck_size:int=2000
+    overlap:int=200
 

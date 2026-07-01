@@ -3,7 +3,7 @@ from pathlib import Path
 from app.models.schema import RepoChunckResponse,RepoChunckRequest,ChunckPreview
 from app.services.repo_scanner import scan_repository
 from app.services.file_reader import read_file_content
-from app.services.chuncker import chunk_text
+from app.services.chuncker import chunk_file
 
 router=APIRouter(prefix="/repo",tags=["chuncks"])
 @router.post("/chunck",response_model=RepoChunckResponse)
@@ -15,7 +15,7 @@ def chunck_repository(payload:RepoChunckRequest):
         total_chuncks=0
         for relative_file_path in files:
             content=read_file_content(payload.repo_path,relative_file_path)
-            chunks=chunk_text(text=content,chunk_size=payload.chunck_size,overlap=payload.overlap)
+            chunks=chunk_file(file_path=relative_file_path,text=content,chunk_size=payload.chunck_size,overlap=payload.overlap)
             total_chuncks += len(chunks)
             for idx, ch in enumerate(chunks[:2]):
                 previews.append(

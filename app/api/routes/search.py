@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List
 
-from app.services.embedding_service import embed_text
+from app.services.embedding_service import embed_query
 from app.services.vector_store import search_chunks
 
 
@@ -32,7 +32,7 @@ class SearchResponse(BaseModel):
 def semantic_search(payload: SearchRequest):
     try:
         query = payload.query.strip()
-        query_vector = embed_text(query)
+        query_vector = embed_query(query)
         matches = search_chunks(query_vector=query_vector, limit=payload.limit)
 
         results: List[SearchResult] = []

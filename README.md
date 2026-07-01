@@ -82,22 +82,21 @@ Ignored directories include:
 
 ### 3. Chunking
 
-`app/services/chuncker.py` splits text into overlapping chunks. This helps preserve context between adjacent segments and improves semantic retrieval.
+`app/services/chuncker.py` chunks files based on their type:
+
+- Python files are chunked on syntax boundaries (functions, classes, top-level code) using the `ast` module, so definitions are never split mid-body. Small adjacent statements are packed together, and oversized definitions fall back to overlapping text chunks.
+- All other files use overlapping text chunks.
 
 Default values:
 
-- `chunk_size = 1000`
-- `overlap = 100`
+- `chunk_size = 2000`
+- `overlap = 200`
 
 ### 4. Embedding
 
-`app/services/embedding_service.py` uses the model:
+`app/services/embedding_service.py` uses the model configured by `EMBEDDING_MODEL` (default `BAAI/bge-small-en-v1.5`, 384-dimensional vectors). Queries are embedded with the model's query instruction prefix via `embed_query`, while chunks are embedded as passages.
 
-```text
-all-MiniLM-L6-v2
-```
-
-This produces 384-dimensional vectors, which matches the Qdrant collection configuration in `app/services/vector_store.py`.
+During indexing, each chunk is embedded with its file path prepended (e.g. `# file: app/services/llm_service.py`) so questions that mention file or module names retrieve better. The stored payload keeps the original chunk text.
 
 ### 5. Vector storage
 
@@ -119,12 +118,13 @@ Each stored point contains:
 
 When you call `POST /ask`:
 
-1. The question is embedded.
-2. Qdrant returns the closest matching chunks.
-3. Matches below the similarity threshold are skipped.
-4. The remaining chunks are stitched into a single context block.
-5. The context is sent to Ollama through `app/services/llm_service.py`.
-6. The API returns an answer and a list of source chunks.
+1. The question is embedded with the query-side instruction prefix.
+2. Qdrant returns up to `RETRIEVAL_CANDIDATES` (default 25) candidate chunks, filtered by `SCORE_THRESHOLD`.
+3. A cross-encoder reranker (`app/services/reranker.py`) re-scores the candidates against the question and keeps the top `limit` matches.
+4. The chunks adjacent to each match (`chunk_index ± 1`) are fetched so the model sees complete logic.
+5. Everything is stitched into a single context block, ordered by file and chunk position.
+6. The context is sent to Ollama through `app/services/llm_service.py`.
+7. The API returns an answer and a list of source chunks.
 
 ## Prerequisites
 
@@ -389,26 +389,23 @@ Example request with extra context:
 
 ## Important Notes
 
-- The current Ollama model is hardcoded as `gemma3` in `app/services/llm_service.py`.
-- Qdrant is currently hardcoded to `localhost:6333` in `app/db/qdrant_client.py`.
+- The Ollama model, Qdrant URL, embedding model, reranker model, and retrieval settings are all configurable through environment variables (see `.env.example`).
+- Changing `EMBEDDING_MODEL` requires re-indexing (`POST /repos/embed` recreates the collection), and `EMBEDDING_VECTOR_SIZE` must match the new model.
 - The project uses the spelling `chunck` in several file names, route names, and schema fields. The README documents the current API as implemented.
-- The `/ask` and `/search` routes filter out matches with scores below `0.4`.
+- Retrieval filters out matches with scores below `SCORE_THRESHOLD` (default `0.4`) inside the Qdrant query.
 - If no relevant chunks are found, `/ask` returns a fallback response unless extra context is available.
 
 ## Known Limitations
 
-- There is no persistence/config layer for Qdrant host, port, collection name, or model choice yet.
-- Re-indexing appends points through the current embed flow rather than explicitly clearing older collection contents first.
-- Supported file types are intentionally limited.
+- Only Python files get syntax-aware chunking; other languages use overlapping text chunks.
+- Retrieval is dense-only; hybrid search (dense + BM25 sparse vectors) is not implemented yet.
 - The current chunk preview route uses `chunck` naming to match the codebase, which may be confusing for API consumers.
 
 ## Future Improvements
 
-- Add configuration through environment variables
-- Add tests for routes and services
-- Support more file types
-- Support collection reset or per-repository namespaces
-- Improve chunking to be syntax-aware for code files
+- Hybrid search with Qdrant sparse vectors for exact identifier matches
+- Syntax-aware chunking for more languages (e.g. via tree-sitter)
+- Per-repository collections/namespaces
 - Standardize naming from `chunck` to `chunk`
 
 ## License
