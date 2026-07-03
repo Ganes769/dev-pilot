@@ -22,3 +22,14 @@ RERANK_ENABLED: bool = os.getenv("RERANK_ENABLED", "true").lower() in ("1", "tru
 
 # How many candidates to pull from Qdrant before reranking down to the requested limit.
 RETRIEVAL_CANDIDATES: int = int(os.getenv("RETRIEVAL_CANDIDATES", "25"))
+
+# Code edit / agent settings
+AGENT_MAX_STEPS: int = int(os.getenv("AGENT_MAX_STEPS", "10"))
+AGENT_RUN_TTL_SECONDS: int = int(os.getenv("AGENT_RUN_TTL_SECONDS", "3600"))
+MAX_FILE_READ_BYTES: int = int(os.getenv("MAX_FILE_READ_BYTES", "524288"))
+MAX_FILE_WRITE_BYTES: int = int(os.getenv("MAX_FILE_WRITE_BYTES", "262144"))
+BLOCKED_FILE_PATTERNS: str = os.getenv(
+    "BLOCKED_FILE_PATTERNS", ".env,*.pem,credentials*,*.key,*.p12"
+)
+DEFAULT_CHUNK_SIZE: int = int(os.getenv("DEFAULT_CHUNK_SIZE", "2000"))
+DEFAULT_CHUNK_OVERLAP: int = int(os.getenv("DEFAULT_CHUNK_OVERLAP", "200"))
