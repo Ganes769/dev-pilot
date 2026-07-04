@@ -21,57 +21,57 @@
       "found_keywords": [
         "ask"
       ],
-      "answer": "Based on the code context, the `ask` API code is located in `release_tracker/src/ai.py`. Specifically, the following functions handle the interaction with different LLM providers:\n\n*   `_call_llm`: This is the central function that orchestrates the call to the chosen LLM provider (`ollama`, `gemini`, or `mock`).\n*   `_ollama_plan`: This function handles the call to the Ollama LLM using the `httpx` library.\n*   `_gemini_plan`: This function handles the call to the Google Gemini LLM using the `google.genai` library.\n\nThese functions are used by the `generate_plan` function, which determines the appropriate LLM provider based on the `AI_PROVIDER` environment variable.",
+      "answer": "The ask API code is located in `src/api/ai.ts`. It defines two functions:\n\n*   `planNewProject`: Makes a POST request to `/projects/ai/plan` with a payload of type `NewProjectPlanPayload`.\n*   `commitNewProject`: Makes a POST request to `/projects/ai/plan/commit` with a payload of type `CreateProjectWithPlanPayload`.",
       "sources": [
         {
-          "file_path": "release_tracker/src/ai.py",
-          "chunk_index": 9,
-          "score": 0.2841
-        },
-        {
-          "file_path": "release_tracker/src/ai.py",
-          "chunk_index": 11,
-          "score": 0.2725
-        },
-        {
-          "file_path": "release_tracker/src/main.py",
+          "file_path": "src/lib/api.ts",
           "chunk_index": 0,
-          "score": 0.2396
+          "score": 0.6311
         },
         {
-          "file_path": "release_tracker/src/routers/task.py",
-          "chunk_index": 0,
-          "score": 0.237
+          "file_path": "src/lib/api.ts",
+          "chunk_index": 3,
+          "score": 0.6154
         },
         {
-          "file_path": "release_tracker/src/dependency.py",
+          "file_path": "src/lib/api.ts",
           "chunk_index": 1,
-          "score": 0.2275
+          "score": 0.6537
         },
         {
-          "file_path": "release_tracker/src/ai.py",
-          "chunk_index": 7,
-          "score": 0.2199
-        },
-        {
-          "file_path": "release_tracker/src/ai.py",
-          "chunk_index": 10,
-          "score": 0.2121
-        },
-        {
-          "file_path": "release_tracker/src/ai.py",
+          "file_path": "src/api/tasks.ts",
           "chunk_index": 0,
-          "score": 0.209
+          "score": 0.6146
         },
         {
-          "file_path": "release_tracker/src/dependency.py",
+          "file_path": "src/api/projects.ts",
           "chunk_index": 0,
-          "score": 0.2075
+          "score": 0.6193
         },
         {
-          "file_path": "README.md",
+          "file_path": "src/api/tasks.ts",
+          "chunk_index": 1,
+          "score": 0.6284
+        },
+        {
+          "file_path": "src/api/ai.ts",
           "chunk_index": 0,
-          "score": 0.2007
+          "score": 0.6344
+        },
+        {
+          "file_path": "src/hooks/useTasks.ts",
+          "chunk_index": 0,
+          "score": 0.6
+        },
+        {
+          "file_path": "src/hooks/useProjects.ts",
+          "chunk_index": 0,
+          "score": 0.6133
+        },
+        {
+          "file_path": "src/hooks/useProjects.ts",
+          "chunk_index": 2,
+          "score": 0.595
         }
       ]
     },
@@ -79,7 +79,7 @@
       "name": "find embed api",
       "question": "where is repository embedding handled?",
       "passed": false,
-      "bad_answer": true,
+      "bad_answer": false,
       "source_count": 10,
       "expected_files": [
         "app/api/routes/embed.py"
@@ -90,60 +90,58 @@
         "chunks",
         "vectors"
       ],
-      "found_keywords": [
-        "embed"
-      ],
-      "answer": "I could not find enough evidence in the retrieved code. Repository embedding is not explicitly mentioned in the provided code.",
+      "found_keywords": [],
+      "answer": "Okay, I've analyzed the provided code snippets and identified several potential issues and areas for improvement. Here\u2019s a breakdown of my observations and recommendations:\n\n**1. `AiNewProjectModal.tsx` Issues:**\n\n*   **`generate.isPending` Disabled State:** The `disabled={generate.isPending}` attribute is applied to multiple elements, but the logic within `generate` isn't shown. This suggests a potential issue where the UI might not update correctly when generating the plan is in progress, leading to a frozen or unresponsive modal.\n*   **Error Display:** The error message (`generateError`) is conditionally rendered using an if statement which is good. However, there could be improvements:  The `rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-200` class applied to the error message looks a little basic and doesn't immediately draw attention. Consider enhancing its styling for better visibility.\n*   **Placeholder Text:**  The placeholder text is generally well-written, but could benefit from more specific guidance within the project brief field.\n\n**2. `useProjects.ts` Hooks Issues:**\n\n*   **Query Invalidation:** The `onSuccess` callbacks in each hook correctly invalidate relevant queries using `qc.invalidateQueries`. This ensures that the UI reflects the latest data after a creation, update, or deletion operation.\n*   **Dependency Injection**: It's good to see `useQueryClient` injected in all hooks to ensure the same query client is being used across the application\n\n**3. `ProjectDetailPage.tsx` Issues & Improvements:**\n\n*   **Missing Project ID Handling:** The code now correctly parses and converts the `projectId` from the URL parameters into a number using  `Number.parseInt(projectId, 10)`. This avoids potential issues with type coercion.\n*   **Initial Error State**: The initial error state handles cases where projectId is missing. Good practice.\n*   **Loading States:** The loading states (`isLoading`) are handled correctly and display appropriate spinners, ensuring a smooth user experience while waiting for data to load.\n*   **Error Handling:**  The `error` handling has been improved by using an `ErrorState` component which will help with styling errors.\n*   **Task Form Logic**: The task form logic is quite complex and could be simplified with proper state management or refactoring. Specifically, the handling of the `showCreateTask`, `editingTask`, and corresponding functions (`handleCreateTask`, `handleEditTask`) should be examined for potential redundancy or inefficiencies.\n*   **View State**: `view` state variable correctly handles \"kanban\" vs \"order\" view options\n\n**4. General Recommendations:**\n\n*   **Type Safety & TypeScript Usage:** The code demonstrates good use of TypeScript, which is crucial for maintaining code quality and catching errors early on.\n*   **Error Handling Strategy:** The error handling strategy (using `ErrorState` component) is generally solid. It's important to consider how different types of errors should be handled differently in the UI (e.g., displaying a more user-friendly message for client-side errors).\n*  **Async/Await**: Using async/await will make code cleaner and easier to read\n\n**Summary of Issues:**\n\n| Component               | Issue                                   | Priority |\n| ----------------------- | --------------------------------------- | -------- |\n| `AiNewProjectModal.tsx` | `generate.isPending` state handling      | High     |\n| `ProjectDetailPage.tsx` | Task Form Logic Complexity              | Medium   |\n| `ProjectDetailPage.tsx` | Initial Error State                     | Low      |\n\nWould you like me to elaborate on any of these points, provide more specific code suggestions, or discuss how to implement certain features (e.g., improved error handling)?",
       "sources": [
         {
-          "file_path": "frontend/README.md",
-          "chunk_index": 0,
-          "score": 0.2376
-        },
-        {
-          "file_path": "release_tracker/src/undo.py",
-          "chunk_index": 0,
-          "score": 0.1724
-        },
-        {
-          "file_path": "release_tracker/compose.yaml",
-          "chunk_index": 0,
-          "score": 0.1478
-        },
-        {
-          "file_path": "release_tracker/src/routers/projects.py",
-          "chunk_index": 4,
-          "score": 0.1436
-        },
-        {
-          "file_path": "README.md",
-          "chunk_index": 0,
-          "score": 0.1177
-        },
-        {
-          "file_path": "frontend/README.md",
+          "file_path": "src/hooks/useProjects.ts",
           "chunk_index": 2,
-          "score": 0.1137
+          "score": 0.6033
         },
         {
-          "file_path": "release_tracker/src/dependency.py",
-          "chunk_index": 0,
-          "score": 0.1048
+          "file_path": "package-lock.json",
+          "chunk_index": 13,
+          "score": 0.602
         },
         {
-          "file_path": "release_tracker/src/crud.py",
-          "chunk_index": 15,
-          "score": 0.0956
+          "file_path": "src/pages/ProjectDetailPage.tsx",
+          "chunk_index": 2,
+          "score": 0.5973
         },
         {
-          "file_path": "release_tracker/src/dependency.py",
-          "chunk_index": 1,
-          "score": 0.0906
+          "file_path": "package-lock.json",
+          "chunk_index": 71,
+          "score": 0.595
         },
         {
-          "file_path": "release_tracker/src/crud.py",
-          "chunk_index": 16,
-          "score": 0.0901
+          "file_path": "package-lock.json",
+          "chunk_index": 74,
+          "score": 0.6128
+        },
+        {
+          "file_path": "src/components/AiNewProjectModal.tsx",
+          "chunk_index": 4,
+          "score": 0.6052
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 11,
+          "score": 0.5928
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 57,
+          "score": 0.595
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 3,
+          "score": 0.6108
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 60,
+          "score": 0.5949
         }
       ]
     },
@@ -151,7 +149,7 @@
       "name": "find vector store",
       "question": "where are chunks stored in qdrant?",
       "passed": false,
-      "bad_answer": true,
+      "bad_answer": false,
       "source_count": 10,
       "expected_files": [
         "app/services/vector_store.py"
@@ -163,57 +161,57 @@
         "repo_chunks"
       ],
       "found_keywords": [],
-      "answer": "I could not find enough evidence in the retrieved code. The code describes undo functionality for tasks and subtasks, but it does not specify where chunks are stored. The code utilizes a PostgreSQL database to store task and dependency information, but it doesn't detail the storage mechanism for \"chunks\" themselves.",
+      "answer": "Okay, I've analyzed the provided code snippets. Here's a breakdown of the key elements and how they interact:\n\n**1. Input, Textarea, and Select Components:**\n\n*   These components (`TextInput`, `TextArea`, `Select`) are styled using Tailwind CSS classes. The most notable class is `'border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:bg-slate-50 disabled:text-slate-500'`. This defines the appearance of the input fields when focused, and also handles disabled states.\n*   The `className` prop is dynamically assembled using an array join method (`[baseInput, className ?? ''].join(' ')`), ensuring that both base styles and any user-provided overrides are applied correctly.\n\n**2. ProjectOverview Component:**\n\n*   This component displays project statistics (total tasks, done tasks, in progress, blocked).\n*   It uses the `lucide-react` library to render icons (`Ban`, `CheckCircle2`, etc.).\n*   `statConfig` is an array of objects that define the styling and labels for each statistic.\n*   The component calculates key metrics like percentage complete (`pct`) based on the total number of tasks and the number of done tasks.  It uses a `Record` to store counts efficiently, keyed by the stat configuration keys (e.g., 'total', 'done').\n*   A visual progress bar is created using a gradient background and its width dynamically set based on the calculated `pct`.\n\n**3. useProjects Hooks:**\n\n*   These hooks provide functionality for creating, updating, and deleting projects via an API (`projectsApi`).\n*   `useCreateProject`, `useUpdateProject`, and `useDeleteProject` are all implemented with React Query's `useMutation` hook.  This means they perform asynchronous mutations (operations that modify data).\n*   On success of a mutation, `qc.invalidateQueries` is called to refresh the relevant queries in React Query (in this case, the `queryKeys.projects.all` query). This ensures the UI reflects the changes made via the API.\n\n**Key Observations and Potential Improvements:**\n\n*   **`baseInput` Variable:** The code assumes a `baseInput` variable is defined elsewhere, which likely contains core Tailwind styles for the input fields (e.g., font size, border radius).\n*   **React Query Integration:** The hooks leverage React Query for data fetching and caching, improving performance by minimizing unnecessary API calls.  Invalidating queries on success is a standard practice in React Query to keep the UI synchronized with the backend.\n*   **Type Safety**: Using TypeScript throughout the code ensures type safety which reduces runtime errors and improves developer productivity.\n\nDo you have any specific questions about this code that I can help you answer? For example, would you like me to:\n\n*   Explain a particular part of the code in more detail?\n*   Suggest potential improvements or optimizations?\n*   Help you understand how React Query works in this context?",
       "sources": [
         {
-          "file_path": "release_tracker/src/database.py",
-          "chunk_index": 0,
-          "score": 0.2226
-        },
-        {
-          "file_path": "release_tracker/compose.yaml",
-          "chunk_index": 0,
-          "score": 0.185
-        },
-        {
-          "file_path": "release_tracker/src/undo.py",
+          "file_path": "src/components/Field.tsx",
           "chunk_index": 2,
-          "score": 0.1756
+          "score": 0.6044
         },
         {
-          "file_path": "release_tracker/src/routers/task.py",
+          "file_path": "src/hooks/useProjects.ts",
           "chunk_index": 2,
-          "score": 0.1589
+          "score": 0.6063
         },
         {
-          "file_path": "release_tracker/src/crud.py",
-          "chunk_index": 12,
-          "score": 0.1563
-        },
-        {
-          "file_path": "release_tracker/src/undo.py",
-          "chunk_index": 0,
-          "score": 0.147
-        },
-        {
-          "file_path": "release_tracker/src/crud.py",
-          "chunk_index": 11,
-          "score": 0.1369
-        },
-        {
-          "file_path": "release_tracker/src/routers/projects.py",
+          "file_path": "src/components/ProjectOverview.tsx",
           "chunk_index": 4,
-          "score": 0.1307
+          "score": 0.611
         },
         {
-          "file_path": "release_tracker/src/config.py",
-          "chunk_index": 0,
-          "score": 0.1294
+          "file_path": "package-lock.json",
+          "chunk_index": 71,
+          "score": 0.5947
         },
         {
-          "file_path": "release_tracker/src/crud.py",
-          "chunk_index": 16,
-          "score": 0.1197
+          "file_path": "package-lock.json",
+          "chunk_index": 80,
+          "score": 0.5993
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 21,
+          "score": 0.6107
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 22,
+          "score": 0.5977
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 78,
+          "score": 0.5977
+        },
+        {
+          "file_path": "package-lock.json",
+          "chunk_index": 44,
+          "score": 0.5952
+        },
+        {
+          "file_path": "src/components/ProjectOverview.tsx",
+          "chunk_index": 1,
+          "score": 0.5994
         }
       ]
     }

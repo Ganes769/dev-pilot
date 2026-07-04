@@ -19,5 +19,26 @@
     "expected_files": ["app/services/vector_store.py"],
     "expected_keywords": ["qdrant", "collection", "repo_chunks"],
     "min_sources": 1
+  },
+  {
+    "name": "find chunking logic",
+    "question": "where is file chunking implemented?",
+    "expected_files": ["app/services/chuncker.py"],
+    "expected_keywords": ["chunk", "chunk_size", "overlap"],
+    "min_sources": 1
+  },
+  {
+    "name": "find embedding service",
+    "question": "where are text embeddings generated?",
+    "expected_files": ["app/services/embedding_service.py"],
+    "expected_keywords": ["SentenceTransformer", "embed", "query"],
+    "min_sources": 1
+  },
+  {
+    "name": "find llm answer generation",
+    "question": "where is the final answer generated using ollama?",
+    "expected_files": ["app/services/llm_service.py"],
+    "expected_keywords": ["ollama", "chat", "Code Context"],
+    "min_sources": 1
   }
 ]
