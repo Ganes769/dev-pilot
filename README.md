@@ -1,29 +1,39 @@
 # DevPilot
 
-DevPilot is a FastAPI-based repository assistant that scans source files, splits them into chunks, generates embeddings, stores those vectors in Qdrant, and answers natural-language questions about the indexed codebase with Ollama.
+DevPilot is a **local, web-API AI product** for asking natural-language questions about a codebase (or other documents you index). It starts from a small real-life use case — *“I don’t want to dig through files; I want answers with sources”* — and is built to grow into a broader document Q&A product.
 
-It also includes a small CLI for indexing a repository and asking questions from the terminal.
+Today it is a FastAPI backend: scan → chunk → embed → store in Qdrant → retrieve → answer with Ollama. A CLI is included for indexing and asking from the terminal. The HTTP API (`/docs`) is the foundation for a future web UI.
+
+## Product direction (small → web)
+
+| Stage | What you ship | Who it’s for |
+|-------|----------------|--------------|
+| **Now** | API + CLI: index a repo, ask questions, get sources | Developers (yourself first) |
+| **Next** | Simple web app: upload/index → chat UI | Small teams, freelancers |
+| **Later** | Same engine for business docs (PDFs, policies, FAQs) | SMEs (travel, legal, education, support) |
+
+Keep the first version narrow: one repo or one folder of docs, one chat box, clear citations. Expand only after that loop works.
 
 ## What It Does
 
-- Scans a repository for supported files
+- Scans a repository (or folder) for supported source and doc files
 - Reads file contents safely with UTF-8 fallback handling
-- Splits file contents into overlapping text chunks
+- Splits contents into overlapping text chunks (AST-aware for Python)
 - Embeds chunks with `sentence-transformers`
 - Stores vectors and chunk metadata in Qdrant
-- Retrieves the most relevant chunks for a question
-- Sends retrieved context to an Ollama model to generate an answer
-- Returns answer text together with source file references
+- Retrieves and reranks the most relevant chunks for a question
+- Sends retrieved context to a local Ollama model
+- Returns an answer plus source file references
+- Exposes everything over HTTP so a web frontend can call the same flow
 
 ## Tech Stack
 
-- FastAPI
+- FastAPI (web API)
 - Pydantic
 - Qdrant
-- sentence-transformers
+- sentence-transformers (+ cross-encoder reranker)
 - Ollama
-- Typer
-- Rich
+- Typer + Rich (CLI)
 
 ## Project Structure
 
@@ -48,9 +58,13 @@ dev-pilot/
 │   │   ├── file_reader.py
 │   │   ├── llm_service.py
 │   │   ├── repo_scanner.py
+│   │   ├── reranker.py
 │   │   └── vector_store.py
+│   ├── config.py
 │   └── main.py
 ├── cli.py
+├── evals/
+├── tests/
 ├── requirements.txt
 └── README.md
 ```
